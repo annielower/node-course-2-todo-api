@@ -6,6 +6,7 @@
     var {Todo} = require('./models/todo');
     var {User} = require('./models/user');
 
+    var {ObjectID} = require('mongoDB');
 
     var app = express();
 
@@ -34,6 +35,43 @@
         }, (e) => {
             res.status(400).send(e);
         })
+    });
+
+    //GET /todos/123
+
+    app.get('/todos/:id', (req, res) => {
+        //res.send(req.params);
+        var id = req.params.id;
+
+        //validate id using isValid
+            //stop function if invalid 404 - send empty
+
+        if (!ObjectID.isValid(id)){
+            console.log("Annie id not valid");
+            return res.status(404).send();
+        }
+
+
+        //findById
+            //success
+                //if todo - send back
+                //if no todo - send 404 with empty body
+            //error
+                //400 - send empty
+
+        Todo.findById(id).then( (todo) => {
+
+            if (!todo){
+                return res.status(404).send();
+            }
+
+            console.log(JSON.stringify(todo, undefined, 2));
+            res.send({todo});
+        }, (e) => {
+            return res.status(400).send();
+        })
+
+
     });
 
     app.listen(3000, () => {
