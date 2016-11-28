@@ -10,6 +10,8 @@
 
     var app = express();
 
+    //for heroku server option - get this from heroku set up
+    const port = process.env.PORT || 3000;
 
     app.use(bodyParser.json()); //middleware to send to Express
 
@@ -72,8 +74,36 @@
         })
     });
 
-    app.listen(3000, () => {
-        console.log('Started on port 3000');
+    app.delete('/todos/:id', (req, res) => {
+        //get the id
+        var id = req.params.id;
+
+        //validate the id -> not valid? return 404
+
+        if (!ObjectID.isValid(id)){
+            console.log("not valid object id");
+            return res.status(404).send();
+        }
+
+        //remove todo by id
+
+        Todo.findByIdAndRemove(id).then((todo) => {
+            if (!todo){
+                return res.status(404).send();
+            }
+
+            if (todo){
+                return res.send({todo});
+            }
+
+        }, (e) =>{
+            return res.status(400).send();
+        })
+
+    });
+
+    app.listen(port, () => {
+        console.log(`Started on port ${port}`);
     });
 
     module.exports = {app}
